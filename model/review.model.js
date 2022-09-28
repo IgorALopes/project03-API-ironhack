@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-const gameSchema = new Schema({
+const reviewSchema = new Schema({
     owner: { type: Schema.Types.ObjectId, ref: "User" },
     title: { type: String, required: true, trim: true },
     type: { type: String, required: true, trim: true },
@@ -31,4 +31,4 @@ const gameSchema = new Schema({
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }]
 });
 
-export const GameModel = model("Game", gameSchema);
+export const ReviewModel = model("Review", reviewSchema);
