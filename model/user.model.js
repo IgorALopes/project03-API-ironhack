@@ -12,6 +12,19 @@ const userSchema = new Schema({
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ["ADMIN", "USER"], default: "USER" },
   createdAt: { type: Date, default: Date.now() },
+  birthDate: { type: Date, required: true },
+  linkGithub: { type: String, trim: true },
+  linkGamerProfile: { type: String, trim: true },
+  reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
+  games: [{ type: Schema.Types.ObjectId, ref: "Game" }],
+  likeGames: [{ type: Schema.Types.ObjectId, ref: "Game" }],
+  likeReviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
+  avatar: {
+    type: String,
+    default: "https://www.promoview.com.br/uploads/images/unnamed%2819%29.png",
+  },
+  UserLevel: { type: Number },
+  UserExp: { type: Number }
 });
 
 export const UserModel = model("User", userSchema);
