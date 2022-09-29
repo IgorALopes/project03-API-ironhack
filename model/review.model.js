@@ -3,8 +3,15 @@ import { Schema, model } from "mongoose";
 const reviewSchema = new Schema({
     owner: { type: Schema.Types.ObjectId, ref: "User" },
     game: { type: Schema.Types.ObjectId, ref: "Game" },
-
-    
+    rates: [
+        { graphics: { type: Number, required: true } },
+        { soundEffects: { type: Number, required: true } },
+        { playability: { type: Number, required: true } },
+        { fun: { type: Number, required: true } },
+        { replayability: { type: Number, required: true } },
+    ],
+    userEvaluation: { type: String },
+    userLikeThis: [{ type: Schema.Types.ObjectId, ref: "User" }]    
 });
 
 export const ReviewModel = model("Review", reviewSchema);
