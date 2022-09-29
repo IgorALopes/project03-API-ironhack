@@ -2,6 +2,8 @@ import { Schema, model } from "mongoose";
 
 const reviewSchema = new Schema({
     owner: { type: Schema.Types.ObjectId, ref: "User" },
+    game: { type: Schema.Types.ObjectId, ref: "Game" },
+    
     title: { type: String, required: true, trim: true },
     type: { type: String, required: true, trim: true },
     esrb: { type: String, enum: ["Everyone", "Everyone 10+", "Teen 13+", "Mature 17+", "Adults Only 18+"], default: "Everyone" },

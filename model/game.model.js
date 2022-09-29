@@ -21,11 +21,11 @@ const gameSchema = new Schema({
         default: "https://www.promoview.com.br/https://tanabi.sp.gov.br/lib/img/no-image.jpg/images/unnamed%2819%29.png",
       }],
     rates: [
-        { graphics: { type: Number } },
-        { soundEffects: { type: Number } },
-        { playability: { type: Number } },
-        { fun: { type: Number } },
-        { replayability: { type: Number } },
+        { graphics: [ { type: Schema.Types.ObjectId, ref: "Review" } ] },
+        { soundEffects: [ { type: Schema.Types.ObjectId, ref: "Review" } ] },
+        { playability: [ { type: Schema.Types.ObjectId, ref: "Review" } ] },
+        { fun: [ { type: Schema.Types.ObjectId, ref: "Review" } ] },
+        { replayability: [ { type: Schema.Types.ObjectId, ref: "Review" } ] },
     ],
     userLikeThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
     reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }]
