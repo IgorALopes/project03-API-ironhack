@@ -13,6 +13,7 @@ const userSchema = new Schema({
   role: { type: String, enum: ["ADMIN", "USER"], default: "USER" },
   createdAt: { type: Date, default: Date.now() },
   birthDate: { type: Date, required: true },
+  age: { type: Number },
   linkGithub: { type: String, trim: true },
   linkGamerProfile: { type: String, trim: true },
   reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
@@ -23,8 +24,8 @@ const userSchema = new Schema({
     type: String,
     default: "https://www.promoview.com.br/uploads/images/unnamed%2819%29.png",
   },
-  UserLevel: { type: Number },
-  UserExp: { type: Number }
+  userLevel: { type: Number },
+  userExp: { type: Number }
 });
 
 export const UserModel = model("User", userSchema);
