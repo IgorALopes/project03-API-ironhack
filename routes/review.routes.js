@@ -52,4 +52,22 @@ reviewRouter.put(
   }
 );
 
+// Delete review
+reviewRouter.delete(
+  "/:id",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const deletedReview = await ReviewModel.deleteOne({ _id: req.params.id });
+
+      return res.status(200).json(deletedReview);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
+
 export { reviewRouter };
