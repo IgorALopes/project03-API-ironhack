@@ -1,6 +1,7 @@
 import express from "express";
 import { GameModel } from "../model/game.model.js";
 import isAuth from "../middlewares/isAuth.js";
+import { isAdmin } from "../middlewares/isAdmin.js";
 import attachCurrentUser from "../middlewares/attachCurrentUser.js";
 
 const gameRouter = express.Router();
@@ -36,6 +37,22 @@ gameRouter.get("/:id", attachCurrentUser, async (req, res) => {
     const game = await GameModel.findOne({ _id: req.params.id });
 
     return res.status(200).json(game);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// Update game
+gameRouter.put("/:id", async (req, res) => {
+  try {
+    const editGame = await GameModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json(editGame);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
