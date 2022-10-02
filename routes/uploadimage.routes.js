@@ -1,3 +1,4 @@
+import { uploadImg } from "../config/cloudinary.config.js";
 import express from "express";
 
 const uploadImgRouter = express.Router();
