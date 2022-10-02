@@ -44,7 +44,7 @@ gameRouter.get("/:id", attachCurrentUser, async (req, res) => {
 });
 
 // Update game
-gameRouter.put("/:id", async (req, res) => {
+gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const editGame = await GameModel.findOneAndUpdate(
       { _id: req.params.id },
@@ -53,6 +53,18 @@ gameRouter.put("/:id", async (req, res) => {
     );
 
     return res.status(200).json(editGame);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// Delete game
+gameRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
+
+    return res.status(200).json(deletedGame);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
