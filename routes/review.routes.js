@@ -19,7 +19,7 @@ reviewRouter.post("/", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // Read one review
-reviewRouter.get("/:id", async (req, res) => {
+reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const review = await ReviewModel.findOne({ _id: req.params.id });
 
@@ -29,5 +29,27 @@ reviewRouter.get("/:id", async (req, res) => {
     return res.status(500).json(err);
   }
 });
+
+//  Update review
+reviewRouter.put(
+  "/:id",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const editReview = await ReviewModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+
+      return res.status(200).json(editReview);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
 
 export { reviewRouter };
