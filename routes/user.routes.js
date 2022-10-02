@@ -88,6 +88,22 @@ userRouter.get("/:id", async (req, res) => {
   }
 });
 
+// User update
+userRouter.put("/:id", async (req, res) => {
+  try {
+    const editUser = await UserModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json(editUser);
+  } catch {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 userRouter.get(
   "/teste",
   isAuth,
