@@ -104,6 +104,18 @@ userRouter.put("/:id", async (req, res) => {
   }
 });
 
+// User delete
+userRouter.delete("/:id", async (req, res) => {
+  try {
+    const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+
+    return res.status(200).json(deletedUser);
+  } catch {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 userRouter.get(
   "/teste",
   isAuth,
