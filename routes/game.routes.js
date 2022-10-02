@@ -29,4 +29,17 @@ gameRouter.get("/games", async (req, res) => {
   }
 });
 
+// Read one game
+
+gameRouter.get("/:id", attachCurrentUser, async (req, res) => {
+  try {
+    const game = await GameModel.findOne({ _id: req.params.id });
+
+    return res.status(200).json(game);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 export { gameRouter };
