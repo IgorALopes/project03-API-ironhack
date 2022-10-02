@@ -32,7 +32,7 @@ gameRouter.get("/games", async (req, res) => {
 
 // Read one game
 
-gameRouter.get("/:id", attachCurrentUser, async (req, res) => {
+gameRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const game = await GameModel.findOne({ _id: req.params.id });
 
@@ -44,7 +44,7 @@ gameRouter.get("/:id", attachCurrentUser, async (req, res) => {
 });
 
 // Update game
-gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
+gameRouter.put("/:id", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
   try {
     const editGame = await GameModel.findOneAndUpdate(
       { _id: req.params.id },
@@ -60,15 +60,21 @@ gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // Delete game
-gameRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
-  try {
-    const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
+gameRouter.delete(
+  "/:id",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
 
-    return res.status(200).json(deletedGame);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
+      return res.status(200).json(deletedGame);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
   }
-});
+);
 
 export { gameRouter };
