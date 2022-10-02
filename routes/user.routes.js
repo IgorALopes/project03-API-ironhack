@@ -98,7 +98,7 @@ userRouter.put("/:id", async (req, res) => {
     );
 
     return res.status(200).json(editUser);
-  } catch {
+  } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }
@@ -110,7 +110,7 @@ userRouter.delete("/:id", async (req, res) => {
     const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
 
     return res.status(200).json(deletedUser);
-  } catch {
+  } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }

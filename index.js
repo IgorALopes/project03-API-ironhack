@@ -18,6 +18,7 @@ const API_VERSION = "1.0";
 
 app.use(`/api/${API_VERSION}/user`, userRouter);
 app.use(`/api/${API_VERSION}/uploadImage`, uploadImgRouter);
+app.use(`/api/${API_VERSION}/game`, gameRouter);
 
 app.listen(Number(process.env.PORT), () => {
   console.log(`Server up and running at port ${process.env.PORT}`);
