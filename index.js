@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import { connect } from "./config/db.config.js";
 import { userRouter } from "./routes/user.routes.js";
 import { uploadImgRouter } from "./routes/uploadimage.routes.js";
+import { gameRouter } from "./routes/game.routes.js";
 import cors from "cors";
 
 dotenv.config();
