@@ -18,4 +18,16 @@ reviewRouter.post("/", isAuth, attachCurrentUser, async (req, res) => {
   }
 });
 
+// Read one review
+reviewRouter.get("/:id", async (req, res) => {
+  try {
+    const review = await ReviewModel.findOne({ _id: req.params.id });
+
+    return res.status(200).json(review);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 export { reviewRouter };
