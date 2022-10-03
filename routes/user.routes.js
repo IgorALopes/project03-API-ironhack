@@ -11,6 +11,7 @@ const SALT_ROUNDS = 10;
 
 const userRouter = express.Router();
 
+// User Singup
 userRouter.post("/signup", async (req, res) => {
   try {
     const { password } = req.body;
@@ -43,6 +44,7 @@ userRouter.post("/signup", async (req, res) => {
   }
 });
 
+// User login
 userRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,6 +70,46 @@ userRouter.post("/login", async (req, res) => {
     } else {
       return res.status(401).json({ msg: "Email ou senha invalidos." });
     }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// User Read
+userRouter.get("/:id", async (req, res) => {
+  try {
+    const user = await UserModel.findOne({ _id: req.params.id });
+
+    return res.status(200).json(user);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// User update
+userRouter.put("/:id", async (req, res) => {
+  try {
+    const editUser = await UserModel.findByIdAndUpdate(
+      { _id: req.params.id },
+      { ...req.body },
+      { new: true, runValidators: true }
+    );
+
+    return res.status(200).json(editUser);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// User delete
+userRouter.delete("/:id", async (req, res) => {
+  try {
+    const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+
+    return res.status(200).json(deletedUser);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

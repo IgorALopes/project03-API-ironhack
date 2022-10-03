@@ -25,7 +25,7 @@ const userSchema = new Schema({
     default: "https://www.promoview.com.br/uploads/images/unnamed%2819%29.png",
   },
   userLevel: { type: Number },
-  userExp: { type: Number }
+  userExp: { type: Number },
 });
 
 export const UserModel = model("User", userSchema);
