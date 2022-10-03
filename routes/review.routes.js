@@ -9,23 +9,12 @@ const reviewRouter = express.Router();
 // Create review
 reviewRouter.post("/", isAuth, attachCurrentUser, async (req, res) => {
   try {
+    console.log(req.body);
     const createdReview = await ReviewModel.create(req.body);
-
     return res.status(200).json(createdReview);
   } catch (err) {
     console.log(err);
-    return res.status(500).json(err);
-  }
-});
-
-// Read one review
-reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
-  try {
-    const review = await ReviewModel.findOne({ _id: req.params.id });
-
-    return res.status(200).json(review);
-  } catch (err) {
-    console.log(err);
+    ß;
     return res.status(500).json(err);
   }
 });

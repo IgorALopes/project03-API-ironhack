@@ -116,14 +116,4 @@ userRouter.delete("/:id", async (req, res) => {
   }
 });
 
-userRouter.get(
-  "/teste",
-  isAuth,
-  attachCurrentUser,
-  isAdmin,
-  async (req, res) => {
-    return res.status(200).json(req.currentUser);
-  }
-);
-
 export { userRouter };

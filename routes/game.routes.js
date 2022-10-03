@@ -1,5 +1,6 @@
 import express from "express";
 import { GameModel } from "../model/game.model.js";
+import { UserModel } from "../model/user.model.js";
 import isAuth from "../middlewares/isAuth.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 import attachCurrentUser from "../middlewares/attachCurrentUser.js";
@@ -9,9 +10,19 @@ const gameRouter = express.Router();
 //Create game
 gameRouter.post("/new-game", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const createdGame = await GameModel.create(req.body);
+    const loggedUser = req.currentUser;
 
-    return res.status(200).json(createdGame);
+    const game = await GameModel.create({
+      ...req.body,
+      owner: loggedUser._id,
+    });
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $push: { games: game._id } }
+    );
+
+    return res.status(201).json(game);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
