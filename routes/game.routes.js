@@ -72,6 +72,31 @@ gameRouter.put("/:id", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
   }
 });
 
+// User like the game
+gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const game = await GameModel.findOne({ _id: req.params.id });
+
+    if (game.userLikeThis.includes(loggedUser._id)) {
+      await GameModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $pull: { userLikeThis: loggedUser._id } }
+      );
+      return res.status(200).json(game);
+    }
+    const userLike = await GameModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    return res.status(200).json(userLike);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 // Delete game
 gameRouter.delete(
   "/:id",

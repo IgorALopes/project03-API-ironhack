@@ -58,6 +58,31 @@ reviewRouter.put(
   }
 );
 
+// User like the review
+reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const review = await ReviewModel.findOne({ _id: req.params.id });
+
+    if (review.userLikeThis.includes(loggedUser._id)) {
+      await ReviewModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $pull: { userLikeThis: loggedUser._id } }
+      );
+      return res.status(200).json(re);
+    }
+    const userLike = await ReviewModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    return res.status(200).json(userLike);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 // Delete review
 reviewRouter.delete(
   "/:id",
