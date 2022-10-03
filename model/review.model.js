@@ -12,7 +12,7 @@ const reviewSchema = new Schema({
     replayability: { type: Number, required: true },
   },
   userEvaluation: { type: String },
-  userLikeThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  userLikesThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
 export const ReviewModel = model("Review", reviewSchema);

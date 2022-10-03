@@ -31,7 +31,7 @@ const gameSchema = new Schema({
         "https://www.promoview.com.br/https://tanabi.sp.gov.br/lib/img/no-image.jpg/images/unnamed%2819%29.png",
     },
   ],
-  userLikeThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  userLikesThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
   reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
 });
 
