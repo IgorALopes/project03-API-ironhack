@@ -69,7 +69,7 @@ reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
         { _id: req.params.id },
         { $pull: { userLikeThis: loggedUser._id } }
       );
-      return res.status(200).json(re);
+      return res.status(200).json(review);
     }
     const userLike = await ReviewModel.findOneAndUpdate(
       { _id: req.params.id },
