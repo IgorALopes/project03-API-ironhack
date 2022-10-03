@@ -72,6 +72,42 @@ gameRouter.put("/:id", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
   }
 });
 
+// User favorite the game
+gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const game = await GameModel.findOne({ _id: req.params.id });
+
+    if (game.userFavoriteGame.includes(loggedUser._id)) {
+      await GameModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $pull: { userFavoriteGame: loggedUser._id } }
+      );
+
+      await UserModel.findOneAndUpdate(
+        { _id: loggedUser._id },
+        { $push: { FavoriteGames: game._id } }
+      );
+
+      return res.status(200).json(game);
+    }
+    const userFavorite = await GameModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $push: { userFavoriteGame: loggedUser._id } }
+    );
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $pull: { FavoriteGames: game._id } }
+    );
+
+    return res.status(200).json(userFavorite);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 // User like the game
 gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {

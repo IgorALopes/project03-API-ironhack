@@ -83,7 +83,8 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 
     const userData = await UserModel.findOne({ _id: loggedUser._id })
       .populate("games")
-      .populate("reviews");
+      .populate("reviews")
+      .populate("FavoriteGames");
 
     return res.status(200).json(userData);
   } catch (err) {

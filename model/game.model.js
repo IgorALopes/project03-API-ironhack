@@ -33,6 +33,7 @@ const gameSchema = new Schema({
   ],
   userLikeThis: [{ type: Schema.Types.ObjectId, ref: "User" }],
   reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
+  userFavoriteGame: [{ type: Schema.Types.ObjectId, ref: "User" }],
 });
 
 export const GameModel = model("Game", gameSchema);
