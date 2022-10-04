@@ -183,11 +183,27 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
       // // delete all user reviews from game
       // const game = await GameModel;
 
+      // delete all user likes from games
+      loggedUser.likeGames.forEach(async (current) => {
+        await GameModel.findOneAndUpdate(
+          { _id: current },
+          { $pull: { userLikeThis: loggedUser._id } }
+        );
+      });
+
       // delete all user favorites from games
       loggedUser.favoriteGames.forEach(async (current) => {
         await GameModel.findOneAndUpdate(
           { _id: current },
           { $pull: { userFavoriteGame: loggedUser._id } }
+        );
+      });
+
+      // delete all user likes from review
+      loggedUser.likeReviews.forEach(async (current) => {
+        await GameModel.findOneAndUpdate(
+          { _id: current },
+          { $pull: { userLikeThis: loggedUser._id } }
         );
       });
 
