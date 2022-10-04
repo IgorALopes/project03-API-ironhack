@@ -77,11 +77,15 @@ userRouter.post("/login", async (req, res) => {
 });
 
 // User Read
-userRouter.get("/:id", async (req, res) => {
+userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const user = await UserModel.findOne({ _id: req.params.id });
+    const loggedUser = req.currentUser;
 
-    return res.status(200).json(user);
+    const userData = await UserModel.findOne({ _id: loggedUser._id })
+      .populate("games")
+      .populate("reviews");
+
+    return res.status(200).json(userData);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
@@ -115,15 +119,5 @@ userRouter.delete("/:id", async (req, res) => {
     return res.status(500).json(err);
   }
 });
-
-userRouter.get(
-  "/teste",
-  isAuth,
-  attachCurrentUser,
-  isAdmin,
-  async (req, res) => {
-    return res.status(200).json(req.currentUser);
-  }
-);
 
 export { userRouter };
