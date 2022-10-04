@@ -6,6 +6,7 @@ import { isAdmin } from "../middlewares/isAdmin.js";
 import { UserModel } from "../model/user.model.js";
 
 import bcrypt from "bcrypt";
+import { gameRouter } from "./game.routes.js";
 
 const SALT_ROUNDS = 10;
 
@@ -83,7 +84,8 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 
     const userData = await UserModel.findOne({ _id: loggedUser._id })
       .populate("games")
-      .populate("reviews");
+      .populate("reviews")
+      .populate("FavoriteGames");
 
     return res.status(200).json(userData);
   } catch (err) {
@@ -92,28 +94,86 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
   }
 });
 
-// User update
-userRouter.put("/:id", async (req, res) => {
-  try {
-    const editUser = await UserModel.findByIdAndUpdate(
-      { _id: req.params.id },
-      { ...req.body },
-      { new: true, runValidators: true }
-    );
+// Read All users
+userRouter.get(
+  "/users",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const allUsers = await UserModel.find();
 
-    return res.status(200).json(editUser);
+      return res.status(200).json(allUsers);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
+
+// User update
+userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+
+    if (
+      String(loggedUser._id) === req.params.id ||
+      loggedUser.role === "ADMIN"
+    ) {
+      const editUser = await UserModel.findByIdAndUpdate(
+        { _id: req.params.id },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+
+      return res.status(200).json(editUser);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
   }
 });
 
-// User delete
-userRouter.delete("/:id", async (req, res) => {
-  try {
-    const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+//User Admin role
+userRouter.put(
+  "/att-role/:id",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const newAdm = await UserModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { role: "ADMIN" },
+        { new: true, runValidators: true }
+      );
 
-    return res.status(200).json(deletedUser);
+      return res.status(200).json(newAdm);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
+
+// User delete
+userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+
+    if (
+      String(loggedUser._id) === req.params.id ||
+      loggedUser.role === "ADMIN"
+    ) {
+      const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+
+      return res.status(200).json(deletedUser);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

@@ -18,8 +18,7 @@ const userSchema = new Schema({
   linkGamerProfile: { type: String, trim: true },
   reviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
   games: [{ type: Schema.Types.ObjectId, ref: "Game" }],
-  likedGames: [{ type: Schema.Types.ObjectId, ref: "Game" }],
-  likedReviews: [{ type: Schema.Types.ObjectId, ref: "Review" }],
+  FavoriteGames: [{ type: Schema.Types.ObjectId, ref: "Game" }],
   avatar: {
     type: String,
     default: "https://www.promoview.com.br/uploads/images/unnamed%2819%29.png",
