@@ -91,11 +91,21 @@ reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
         { $pull: { userLikeThis: loggedUser._id } }
       );
 
+      await UserModel.findOneAndUpdate(
+        { _id: loggedUser._id },
+        { $pull: { likeReviews: game._id } }
+      );
+
       return res.status(200).json(review);
     }
     const userLike = await ReviewModel.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $push: { likeReviews: game._id } }
     );
 
     return res.status(200).json(userLike);

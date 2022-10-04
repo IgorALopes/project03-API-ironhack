@@ -7,6 +7,8 @@ import { UserModel } from "../model/user.model.js";
 
 import bcrypt from "bcrypt";
 import { gameRouter } from "./game.routes.js";
+import { GameModel } from "../model/game.model.js";
+import { ReviewModel } from "../model/review.model.js";
 
 const SALT_ROUNDS = 10;
 
@@ -85,7 +87,7 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
     const userData = await UserModel.findOne({ _id: loggedUser._id })
       .populate("games")
       .populate("reviews")
-      .populate("FavoriteGames");
+      .populate("favoriteGames");
 
     return res.status(200).json(userData);
   } catch (err) {
@@ -168,6 +170,28 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
       String(loggedUser._id) === req.params.id ||
       loggedUser.role === "ADMIN"
     ) {
+      // delete all user games
+      loggedUser.games.forEach(async (current) => {
+        await GameModel.deleteOne({ _id: current });
+      });
+
+      //  delete all user reviews
+      loggedUser.reviews.forEach(async (current) => {
+        await ReviewModel.deleteOne({ _id: current });
+      });
+
+      // // delete all user reviews from game
+      // const game = await GameModel;
+
+      // delete all user favorites from games
+      loggedUser.favoriteGames.forEach(async (current) => {
+        await GameModel.findOneAndUpdate(
+          { _id: current },
+          { $pull: { userFavoriteGame: loggedUser._id } }
+        );
+      });
+
+      // delete user
       const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
 
       return res.status(200).json(deletedUser);
