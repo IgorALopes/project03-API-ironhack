@@ -1,6 +1,7 @@
 import express from "express";
 import { GameModel } from "../model/game.model.js";
 import { UserModel } from "../model/user.model.js";
+import { ReviewModel } from "../model/review.model.js";
 import isAuth from "../middlewares/isAuth.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 import attachCurrentUser from "../middlewares/attachCurrentUser.js";
@@ -147,12 +148,27 @@ gameRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
     const loggedUser = req.currentUser;
     const game = await GameModel.findOne({ _id: req.params.id });
 
+    game.reviews.forEach(async (current) => {
+      await ReviewModel.deleteOne({ _id: current });
+    });
+
     if (
       String(loggedUser._id) === String(game.owner._id) ||
       loggedUser.role === "ADMIN"
     ) {
-      const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
+      await UserModel.findOneAndUpdate(
+        { id: game.owner },
+        { $pull: { games: req.params.id } }
+      );
 
+      if (game.userFavoriteGame.includes(loggedUser._id)) {
+        await UserModel.findOneAndUpdate(
+          { id: game.owner },
+          { $pull: { FavoriteGames: req.params.id } }
+        );
+      }
+
+      const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
       return res.status(200).json(deletedGame);
     } else {
       return res.status(401).json({ msg: "User unauthorized." });
