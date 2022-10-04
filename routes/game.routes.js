@@ -42,7 +42,6 @@ gameRouter.get("/games", async (req, res) => {
 });
 
 // Read one game
-
 gameRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const game = await GameModel.findOne({ _id: req.params.id })

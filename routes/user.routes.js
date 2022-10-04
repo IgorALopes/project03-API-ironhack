@@ -94,15 +94,24 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // User update
-userRouter.put("/:id", async (req, res) => {
+userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const editUser = await UserModel.findByIdAndUpdate(
-      { _id: req.params.id },
-      { ...req.body },
-      { new: true, runValidators: true }
-    );
+    const loggedUser = req.currentUser;
 
-    return res.status(200).json(editUser);
+    if (
+      String(loggedUser._id) === req.params.id ||
+      loggedUser.role === "ADMIN"
+    ) {
+      const editUser = await UserModel.findByIdAndUpdate(
+        { _id: req.params.id },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+
+      return res.status(200).json(editUser);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

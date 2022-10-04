@@ -36,27 +36,47 @@ reviewRouter.post("/:id", isAuth, attachCurrentUser, async (req, res) => {
   }
 });
 
+// Read one game
+reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const review = await ReviewModel.findOne({ _id: req.params.id })
+      .populate("owner")
+      .populate("game");
+
+    return res.status(200).json(review);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
 //  Update review
-reviewRouter.put(
-  "/:id",
-  isAuth,
-  attachCurrentUser,
-  isAdmin,
-  async (req, res) => {
-    try {
+reviewRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const review = await ReviewModel.findOne({ _id: req.params.id });
+    console.log(String(loggedUser._id));
+    console.log(String(review.owner._id));
+    console.log(loggedUser.role);
+
+    if (
+      String(loggedUser._id) === String(review.owner._id) ||
+      loggedUser.role === "ADMIN"
+    ) {
       const editReview = await ReviewModel.findOneAndUpdate(
         { _id: req.params.id },
         { ...req.body },
         { new: true, runValidators: true }
       );
-
       return res.status(200).json(editReview);
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
     }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
   }
-);
+});
 
 // User like the review
 reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
@@ -89,12 +109,24 @@ reviewRouter.delete(
   "/:id",
   isAuth,
   attachCurrentUser,
-  isAdmin,
+
   async (req, res) => {
     try {
-      const deletedReview = await ReviewModel.deleteOne({ _id: req.params.id });
+      const loggedUser = req.currentUser;
+      const review = await ReviewModel.findOne({ _id: req.params.id });
 
-      return res.status(200).json(deletedReview);
+      if (
+        String(loggedUser._id) === String(review.owner._id) ||
+        loggedUser.role === "ADMIN"
+      ) {
+        const deletedReview = await ReviewModel.deleteOne({
+          _id: req.params.id,
+        });
+
+        return res.status(200).json(deletedReview);
+      } else {
+        return res.status(401).json({ msg: "User unauthorized" });
+      }
     } catch (err) {
       console.log(err);
       return res.status(500).json(err);
