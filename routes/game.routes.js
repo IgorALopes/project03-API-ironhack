@@ -45,9 +45,9 @@ gameRouter.get("/games", async (req, res) => {
 
 gameRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const game = await GameModel.findOne({ _id: req.params.id }).populate(
-      "reviews"
-    );
+    const game = await GameModel.findOne({ _id: req.params.id })
+      .populate("reviews")
+      .populate("owner");
 
     return res.status(200).json(game);
   } catch (err) {
@@ -57,15 +57,25 @@ gameRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // Update game
-gameRouter.put("/:id", isAuth, attachCurrentUser, isAdmin, async (req, res) => {
+gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const editGame = await GameModel.findOneAndUpdate(
-      { _id: req.params.id },
-      { ...req.body },
-      { new: true, runValidators: true }
-    );
-
-    return res.status(200).json(editGame);
+    const loggedUser = req.currentUser;
+    const game = await GameModel.findOne({ _id: req.params.id });
+    console.log(String(loggedUser._id));
+    console.log(String(game.owner._id));
+    if (
+      String(loggedUser._id) === String(game.owner._id) ||
+      loggedUser.role === "ADMIN"
+    ) {
+      const editGame = await GameModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { ...req.body },
+        { new: true, runValidators: true }
+      );
+      return res.status(200).json(editGame);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
@@ -86,7 +96,7 @@ gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
 
       await UserModel.findOneAndUpdate(
         { _id: loggedUser._id },
-        { $push: { FavoriteGames: game._id } }
+        { $pull: { FavoriteGames: game._id } }
       );
 
       return res.status(200).json(game);
@@ -98,7 +108,7 @@ gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
 
     await UserModel.findOneAndUpdate(
       { _id: loggedUser._id },
-      { $pull: { FavoriteGames: game._id } }
+      { $push: { FavoriteGames: game._id } }
     );
 
     return res.status(200).json(userFavorite);
@@ -142,6 +152,11 @@ gameRouter.delete(
   async (req, res) => {
     try {
       const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
+
+      // await UserModel.findOneAndUpdate(
+      //   { _id: loggedUser._id },
+      //   { $pull: { games: req.params.id } }
+      // );
 
       return res.status(200).json(deletedGame);
     } catch (err) {
