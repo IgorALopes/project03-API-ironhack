@@ -61,8 +61,7 @@ gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const loggedUser = req.currentUser;
     const game = await GameModel.findOne({ _id: req.params.id });
-    console.log(String(loggedUser._id));
-    console.log(String(game.owner._id));
+
     if (
       String(loggedUser._id) === String(game.owner._id) ||
       loggedUser.role === "ADMIN"
@@ -83,7 +82,7 @@ gameRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // User favorite the game
-gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+gameRouter.patch("/fav/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const loggedUser = req.currentUser;
     const game = await GameModel.findOne({ _id: req.params.id });
@@ -119,7 +118,7 @@ gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // User like the game
-gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+gameRouter.patch("/like/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const loggedUser = req.currentUser;
     const game = await GameModel.findOne({ _id: req.params.id });
@@ -144,26 +143,25 @@ gameRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // Delete game
-gameRouter.delete(
-  "/:id",
-  isAuth,
-  attachCurrentUser,
-  isAdmin,
-  async (req, res) => {
-    try {
+gameRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const game = await GameModel.findOne({ _id: req.params.id });
+
+    if (
+      String(loggedUser._id) === String(game.owner._id) ||
+      loggedUser.role === "ADMIN"
+    ) {
       const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
 
-      // await UserModel.findOneAndUpdate(
-      //   { _id: loggedUser._id },
-      //   { $pull: { games: req.params.id } }
-      // );
-
       return res.status(200).json(deletedGame);
-    } catch (err) {
-      console.log(err);
-      return res.status(500).json(err);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
     }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
   }
-);
+});
 
 export { gameRouter };
