@@ -1,5 +1,7 @@
 import express from "express";
 import { ReviewModel } from "../model/review.model.js";
+import { UserModel } from "../model/user.model.js";
+import { GameModel } from "../model/game.model.js";
 import isAuth from "../middlewares/isAuth.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 import attachCurrentUser from "../middlewares/attachCurrentUser.js";
@@ -7,25 +9,29 @@ import attachCurrentUser from "../middlewares/attachCurrentUser.js";
 const reviewRouter = express.Router();
 
 // Create review
-reviewRouter.post("/", isAuth, attachCurrentUser, async (req, res) => {
+reviewRouter.post("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const createdReview = await ReviewModel.create(req.body);
+    const loggedUser = req.currentUser;
+
+    const createdReview = await ReviewModel.create({
+      ...req.body,
+      owner: loggedUser._id,
+    });
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $push: { reviews: createdReview.id } }
+    );
+
+    await GameModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $push: { reviews: createdReview._id } }
+    );
 
     return res.status(200).json(createdReview);
   } catch (err) {
     console.log(err);
-    return res.status(500).json(err);
-  }
-});
-
-// Read one review
-reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
-  try {
-    const review = await ReviewModel.findOne({ _id: req.params.id });
-
-    return res.status(200).json(review);
-  } catch (err) {
-    console.log(err);
+    ß;
     return res.status(500).json(err);
   }
 });
@@ -51,6 +57,31 @@ reviewRouter.put(
     }
   }
 );
+
+// User like the review
+reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
+  try {
+    const loggedUser = req.currentUser;
+    const review = await ReviewModel.findOne({ _id: req.params.id });
+
+    if (review.userLikeThis.includes(loggedUser._id)) {
+      await ReviewModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { $pull: { userLikeThis: loggedUser._id } }
+      );
+      return res.status(200).json(re);
+    }
+    const userLike = await ReviewModel.findOneAndUpdate(
+      { _id: req.params.id },
+      { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    return res.status(200).json(userLike);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
 
 // Delete review
 reviewRouter.delete(
