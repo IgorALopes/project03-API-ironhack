@@ -119,11 +119,20 @@ userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // User delete
-userRouter.delete("/:id", async (req, res) => {
+userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
-    const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+    const loggedUser = req.currentUser;
 
-    return res.status(200).json(deletedUser);
+    if (
+      String(loggedUser._id) === req.params.id ||
+      loggedUser.role === "ADMIN"
+    ) {
+      const deletedUser = await UserModel.deleteOne({ _id: req.params.id });
+
+      return res.status(200).json(deletedUser);
+    } else {
+      return res.status(401).json({ msg: "User unauthorized." });
+    }
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
