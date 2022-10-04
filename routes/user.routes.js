@@ -14,8 +14,9 @@ const userRouter = express.Router();
 // User Singup
 userRouter.post("/signup", async (req, res) => {
   try {
+    console.log(req.body);
     const { password } = req.body;
-
+    console.log(password)
     if (
       !password ||
       !password.match(
@@ -30,7 +31,7 @@ userRouter.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
 
     const hashedPassword = await bcrypt.hash(password, salt);
-
+    
     const createdUser = await UserModel.create({
       ...req.body,
       passwordHash: hashedPassword,
