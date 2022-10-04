@@ -118,6 +118,28 @@ userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
   }
 });
 
+//User Admin role
+userRouter.put(
+  "/att-role/:id",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const newAdm = await UserModel.findOneAndUpdate(
+        { _id: req.params.id },
+        { role: "ADMIN" },
+        { new: true, runValidators: true }
+      );
+
+      return res.status(200).json(newAdm);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
+
 // User delete
 userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
