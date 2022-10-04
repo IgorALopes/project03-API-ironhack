@@ -6,6 +6,7 @@ import { isAdmin } from "../middlewares/isAdmin.js";
 import { UserModel } from "../model/user.model.js";
 
 import bcrypt from "bcrypt";
+import { gameRouter } from "./game.routes.js";
 
 const SALT_ROUNDS = 10;
 
@@ -92,6 +93,24 @@ userRouter.get("/profile", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(500).json(err);
   }
 });
+
+// Read All users
+userRouter.get(
+  "/users",
+  isAuth,
+  attachCurrentUser,
+  isAdmin,
+  async (req, res) => {
+    try {
+      const allUsers = await UserModel.find();
+
+      return res.status(200).json(allUsers);
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json(err);
+    }
+  }
+);
 
 // User update
 userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
