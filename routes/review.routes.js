@@ -16,6 +16,7 @@ reviewRouter.post("/:id", isAuth, attachCurrentUser, async (req, res) => {
     const createdReview = await ReviewModel.create({
       ...req.body,
       owner: loggedUser._id,
+      game: req.params.id,
     });
 
     await UserModel.findOneAndUpdate(
@@ -90,11 +91,21 @@ reviewRouter.patch("/:id", isAuth, attachCurrentUser, async (req, res) => {
         { $pull: { userLikeThis: loggedUser._id } }
       );
 
+      await UserModel.findOneAndUpdate(
+        { _id: loggedUser._id },
+        { $pull: { likeReviews: game._id } }
+      );
+
       return res.status(200).json(review);
     }
     const userLike = await ReviewModel.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $push: { likeReviews: review._id } }
     );
 
     return res.status(200).json(userLike);
@@ -122,6 +133,16 @@ reviewRouter.delete(
         const deletedReview = await ReviewModel.deleteOne({
           _id: req.params.id,
         });
+
+        await GameModel.findOneAndUpdate(
+          { _id: review.game },
+          { $pull: { reviews: req.params.id } }
+        );
+
+        await UserModel.findOneAndUpdate(
+          { _id: review.owner },
+          { $pull: { reviews: req.params.id } }
+        );
 
         return res.status(200).json(deletedReview);
       } else {
