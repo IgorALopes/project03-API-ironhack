@@ -33,7 +33,7 @@ gameRouter.post("/new-game", isAuth, attachCurrentUser, async (req, res) => {
 // Read all games
 gameRouter.get("/games", async (req, res) => {
   try {
-    const allGames = await GameModel.find();
+    const allGames = await GameModel.find().populate("owner");
 
     return res.status(200).json(allGames);
   } catch (err) {
