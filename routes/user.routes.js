@@ -165,7 +165,9 @@ userRouter.put(
 userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const loggedUser = req.currentUser;
-    const allGames = await GameModel.find();
+    const allGames = await GameModel.find().populate("reviews");
+
+    // console.log("%j", allGames);
 
     if (
       String(loggedUser._id) === req.params.id ||
@@ -176,19 +178,22 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
         await GameModel.deleteOne({ _id: current });
       });
 
+      // // delete all user reviews from games NOT WORKING YET
+
+      allGames.forEach(async (currentKey) => {
+        currentKey.reviews.forEach(async (currentReview) => {
+          if (String(currentReview.owner) === req.params.id) {
+            await GameModel.findOneAndUpdate(
+              { _id: currentReview.game },
+              { $pull: { reviews: currentReview._id } }
+            );
+          }
+        });
+      });
+
       //  delete all user reviews
       loggedUser.reviews.forEach(async (current) => {
         await ReviewModel.deleteOne({ _id: current });
-      });
-
-      // // delete all user reviews from games NOT WORKING YET
-      allGames.map(async (current) => {
-        if (current.reviews.includes(loggedUser._id)) {
-          await GameModel.findOneAndUpdate(
-            { _id: current },
-            { $pull: { reviews: loggedUser._id } }
-          );
-        }
       });
 
       // delete all user likes from games
