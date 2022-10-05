@@ -1,6 +1,7 @@
 import express from "express";
 import { GameModel } from "../model/game.model.js";
 import { UserModel } from "../model/user.model.js";
+import { ReviewModel } from "../model/review.model.js";
 import isAuth from "../middlewares/isAuth.js";
 import { isAdmin } from "../middlewares/isAdmin.js";
 import attachCurrentUser from "../middlewares/attachCurrentUser.js";
@@ -94,7 +95,7 @@ gameRouter.patch("/fav/:id", isAuth, attachCurrentUser, async (req, res) => {
 
       await UserModel.findOneAndUpdate(
         { _id: loggedUser._id },
-        { $pull: { FavoriteGames: game._id } }
+        { $pull: { favoriteGames: game._id } }
       );
 
       return res.status(200).json(game);
@@ -106,7 +107,7 @@ gameRouter.patch("/fav/:id", isAuth, attachCurrentUser, async (req, res) => {
 
     await UserModel.findOneAndUpdate(
       { _id: loggedUser._id },
-      { $push: { FavoriteGames: game._id } }
+      { $push: { favoriteGames: game._id } }
     );
 
     return res.status(200).json(userFavorite);
@@ -127,11 +128,22 @@ gameRouter.patch("/like/:id", isAuth, attachCurrentUser, async (req, res) => {
         { _id: req.params.id },
         { $pull: { userLikeThis: loggedUser._id } }
       );
+
+      await UserModel.findOneAndUpdate(
+        { _id: loggedUser._id },
+        { $pull: { likeGames: game._id } }
+      );
+
       return res.status(200).json(game);
     }
     const userLike = await GameModel.findOneAndUpdate(
       { _id: req.params.id },
       { $push: { userLikeThis: loggedUser._id } }
+    );
+
+    await UserModel.findOneAndUpdate(
+      { _id: loggedUser._id },
+      { $push: { likeGames: game._id } }
     );
 
     return res.status(200).json(userLike);
@@ -151,8 +163,27 @@ gameRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
       String(loggedUser._id) === String(game.owner._id) ||
       loggedUser.role === "ADMIN"
     ) {
-      const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
+      // Delete all game reviews
+      game.reviews.forEach(async (current) => {
+        await ReviewModel.deleteOne({ _id: current });
+      });
 
+      // delete the game from user
+      await UserModel.findOneAndUpdate(
+        { id: game.owner },
+        { $pull: { games: req.params.id } }
+      );
+
+      // delete favorite game from user
+      if (game.userFavoriteGame.includes(loggedUser._id)) {
+        await UserModel.findOneAndUpdate(
+          { id: game.owner },
+          { $pull: { favoriteGames: req.params.id } }
+        );
+      }
+
+      // delete game
+      const deletedGame = await GameModel.deleteOne({ _id: req.params.id });
       return res.status(200).json(deletedGame);
     } else {
       return res.status(401).json({ msg: "User unauthorized." });
