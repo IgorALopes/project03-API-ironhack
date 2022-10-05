@@ -22,7 +22,7 @@ const gameSchema = new Schema({
   gameLogo: {
     type: String,
     default:
-      "https://cdn.https://cdn.pixabay.com/photo/2017/06/10/07/15/joystick-2389216_960_720.pngpixabay.com/photo/2016/12/23/07/00/game-1926905_960_720.png",
+      "https://cdn.pixabay.com/photo/2016/12/23/07/00/game-1926906__340.png",
   },
   screenShots: [
     {
