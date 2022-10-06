@@ -5,7 +5,7 @@ const uploadImgRouter = express.Router();
 
 uploadImgRouter.post(
   "/uploadImage",
-  uploadImg.single("picture"),
+  uploadImg.single("pictures"),
   (req, res) => {
     if (!req.file) {
       console.log(req.file);
