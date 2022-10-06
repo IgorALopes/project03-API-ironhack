@@ -178,7 +178,7 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
         await GameModel.deleteOne({ _id: current });
       });
 
-      // // delete all user reviews from games
+      // delete all user reviews from games
 
       allGames.forEach(async (currentKey) => {
         currentKey.reviews.forEach(async (currentReview) => {
