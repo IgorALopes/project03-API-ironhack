@@ -32,7 +32,7 @@ reviewRouter.post("/:id", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(200).json(createdReview);
   } catch (err) {
     console.log(err);
-    ß;
+    //ß;
     return res.status(500).json(err);
   }
 });
@@ -45,6 +45,19 @@ reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
       .populate("game");
 
     return res.status(200).json(review);
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json(err);
+  }
+});
+
+// Read all reviews
+reviewRouter.get("/reviews", async (req, res) => {
+  console.log("😊")
+  try {
+    const allReviews = await ReviewModel.find()
+    console.log("aaaaaaaaaaaaaaaaa", allReviews)
+    return res.status(200).json(allReviews);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

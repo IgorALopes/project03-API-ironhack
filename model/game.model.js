@@ -8,11 +8,11 @@ const gameSchema = new Schema({
   esrb: {
     type: String,
     enum: [
-      "Everyone",
+      ,"Everyone",
       "Everyone 10+",
       "Teen 13+",
       "Mature 17+",
-      "Adults Only 18+",
+      "Adults Only 18+"
     ],
     required: true,
   },

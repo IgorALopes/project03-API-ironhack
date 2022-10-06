@@ -103,11 +103,9 @@ userRouter.get(
   "/users",
   isAuth,
   attachCurrentUser,
-  isAdmin,
   async (req, res) => {
     try {
       const allUsers = await UserModel.find();
-
       return res.status(200).json(allUsers);
     } catch (err) {
       console.log(err);
