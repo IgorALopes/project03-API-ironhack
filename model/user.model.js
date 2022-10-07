@@ -12,7 +12,7 @@ const userSchema = new Schema({
   passwordHash: { type: String, required: true },
   role: { type: String, enum: ["ADMIN", "USER"], default: "USER" },
   createdAt: { type: Date, default: Date.now() },
-  birthDate: { type: Date, required: true },
+  birthDate: { type: Date },
   age: { type: Number },
   linkGithub: { type: String, trim: true },
   linkGamerProfile: { type: String, trim: true },
