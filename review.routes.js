@@ -32,12 +32,12 @@ reviewRouter.post("/:id", isAuth, attachCurrentUser, async (req, res) => {
     return res.status(200).json(createdReview);
   } catch (err) {
     console.log(err);
-    //ß;
+    ß;
     return res.status(500).json(err);
   }
 });
 
-// Read one review
+// Read one game
 reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
   try {
     const review = await ReviewModel.findOne({ _id: req.params.id })
@@ -45,19 +45,6 @@ reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
       .populate("game");
 
     return res.status(200).json(review);
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
-  }
-});
-
-// Read all reviews
-reviewRouter.get("/bananas", async (req, res) => {
-  console.log("😊")
-  try {
-    const allReviews = await ReviewModel.find({})
-    console.log("aaaaaaaaaaaaaaaaa", allReviews)
-    return res.status(200).json(allReviews);
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);
@@ -135,7 +122,6 @@ reviewRouter.delete(
   attachCurrentUser,
 
   async (req, res) => {
-    console.log(req);
     try {
       const loggedUser = req.currentUser;
       const review = await ReviewModel.findOne({ _id: req.params.id });
@@ -144,6 +130,10 @@ reviewRouter.delete(
         String(loggedUser._id) === String(review.owner._id) ||
         loggedUser.role === "ADMIN"
       ) {
+        const deletedReview = await ReviewModel.deleteOne({
+          _id: req.params.id,
+        });
+
         await GameModel.findOneAndUpdate(
           { _id: review.game },
           { $pull: { reviews: req.params.id } }
@@ -153,10 +143,6 @@ reviewRouter.delete(
           { _id: review.owner },
           { $pull: { reviews: req.params.id } }
         );
-
-        const deletedReview = await ReviewModel.deleteOne({
-          _id: req.params.id,
-        });
 
         return res.status(200).json(deletedReview);
       } else {
