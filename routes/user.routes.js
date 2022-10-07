@@ -104,7 +104,7 @@ userRouter.get(
   isAdmin,
   async (req, res) => {
     try {
-      const allUsers = await UserModel.find();
+      const allUsers = await UserModel.find().populate("reviews");
 
       return res.status(200).json(allUsers);
     } catch (err) {
