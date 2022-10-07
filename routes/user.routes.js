@@ -14,11 +14,12 @@ const SALT_ROUNDS = 10;
 
 const userRouter = express.Router();
 
-// User Singup
+// User Signup
 userRouter.post("/signup", async (req, res) => {
   try {
+    console.log(req.body);
     const { password } = req.body;
-
+    console.log(password)
     if (
       !password ||
       !password.match(
@@ -33,7 +34,7 @@ userRouter.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
 
     const hashedPassword = await bcrypt.hash(password, salt);
-
+    
     const createdUser = await UserModel.create({
       ...req.body,
       passwordHash: hashedPassword,
@@ -51,6 +52,7 @@ userRouter.post("/signup", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body, email, password)
 
     const user = await UserModel.findOne({ email: email });
 
@@ -101,11 +103,9 @@ userRouter.get(
   "/users",
   isAuth,
   attachCurrentUser,
-  isAdmin,
   async (req, res) => {
     try {
-      const allUsers = await UserModel.find();
-
+      const allUsers = await UserModel.find({});
       return res.status(200).json(allUsers);
     } catch (err) {
       console.log(err);
@@ -121,7 +121,7 @@ userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 
     if (
       String(loggedUser._id) === req.params.id ||
-      loggedUser.role === "ADMIN"
+      loggedUser.role === "USER"
     ) {
       const editUser = await UserModel.findByIdAndUpdate(
         { _id: req.params.id },
