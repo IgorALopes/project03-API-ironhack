@@ -14,12 +14,11 @@ const SALT_ROUNDS = 10;
 
 const userRouter = express.Router();
 
-// User Signup
+// User Singup
 userRouter.post("/signup", async (req, res) => {
   try {
-    console.log(req.body);
     const { password } = req.body;
-    console.log(password)
+
     if (
       !password ||
       !password.match(
@@ -34,7 +33,7 @@ userRouter.post("/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(SALT_ROUNDS);
 
     const hashedPassword = await bcrypt.hash(password, salt);
-    
+
     const createdUser = await UserModel.create({
       ...req.body,
       passwordHash: hashedPassword,
@@ -52,7 +51,6 @@ userRouter.post("/signup", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body, email, password)
 
     const user = await UserModel.findOne({ email: email });
 
@@ -103,9 +101,11 @@ userRouter.get(
   "/users",
   isAuth,
   attachCurrentUser,
+  isAdmin,
   async (req, res) => {
     try {
-      const allUsers = await UserModel.find({});
+      const allUsers = await UserModel.find();
+
       return res.status(200).json(allUsers);
     } catch (err) {
       console.log(err);
@@ -121,7 +121,7 @@ userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 
     if (
       String(loggedUser._id) === req.params.id ||
-      loggedUser.role === "USER"
+      loggedUser.role === "ADMIN"
     ) {
       const editUser = await UserModel.findByIdAndUpdate(
         { _id: req.params.id },
@@ -167,11 +167,18 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
     const loggedUser = req.currentUser;
     const allGames = await GameModel.find().populate("reviews");
 
+    // console.log("%j", allGames);
+
     if (
       String(loggedUser._id) === req.params.id ||
       loggedUser.role === "ADMIN"
     ) {
-      // delete all user reviews from games
+      // delete all user games
+      loggedUser.games.forEach(async (current) => {
+        await GameModel.deleteOne({ _id: current });
+      });
+
+      // // delete all user reviews from games
 
       allGames.forEach(async (currentKey) => {
         currentKey.reviews.forEach(async (currentReview) => {
@@ -182,6 +189,11 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
             );
           }
         });
+      });
+
+      //  delete all user reviews
+      loggedUser.reviews.forEach(async (current) => {
+        await ReviewModel.deleteOne({ _id: current });
       });
 
       // delete all user likes from games
@@ -206,16 +218,6 @@ userRouter.delete("/:id", isAuth, attachCurrentUser, async (req, res) => {
           { _id: current },
           { $pull: { userLikeThis: loggedUser._id } }
         );
-      });
-
-      //  delete all user reviews
-      loggedUser.reviews.forEach(async (current) => {
-        await ReviewModel.deleteOne({ _id: current });
-      });
-
-      // delete all user games
-      loggedUser.games.forEach(async (current) => {
-        await GameModel.deleteOne({ _id: current });
       });
 
       // delete user
