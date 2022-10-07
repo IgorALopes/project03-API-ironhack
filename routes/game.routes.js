@@ -48,8 +48,11 @@ gameRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
     const game = await GameModel.findOne({ _id: req.params.id })
       .populate("reviews")
       .populate("owner");
-
-    return res.status(200).json(game);
+    
+      const gameReviews = await ReviewModel.find({game: req.params.id}).populate("owner")
+      console.log(gameReviews);
+    
+    return res.status(200).json({game: {...game._doc}, reviewsPop: {...gameReviews}});
   } catch (err) {
     console.log(err);
     return res.status(500).json(err);

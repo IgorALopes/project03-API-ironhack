@@ -14,7 +14,7 @@ const SALT_ROUNDS = 10;
 
 const userRouter = express.Router();
 
-// User Singup
+// User Signup
 userRouter.post("/signup", async (req, res) => {
   try {
     console.log(req.body);
@@ -105,7 +105,7 @@ userRouter.get(
   attachCurrentUser,
   async (req, res) => {
     try {
-      const allUsers = await UserModel.find();
+      const allUsers = await UserModel.find({});
       return res.status(200).json(allUsers);
     } catch (err) {
       console.log(err);
@@ -121,7 +121,7 @@ userRouter.put("/:id", isAuth, attachCurrentUser, async (req, res) => {
 
     if (
       String(loggedUser._id) === req.params.id ||
-      loggedUser.role === "ADMIN"
+      loggedUser.role === "USER"
     ) {
       const editUser = await UserModel.findByIdAndUpdate(
         { _id: req.params.id },

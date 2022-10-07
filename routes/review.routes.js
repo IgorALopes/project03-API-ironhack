@@ -52,10 +52,10 @@ reviewRouter.get("/:id", isAuth, attachCurrentUser, async (req, res) => {
 });
 
 // Read all reviews
-reviewRouter.get("/reviews", async (req, res) => {
+reviewRouter.get("/bananas", async (req, res) => {
   console.log("😊")
   try {
-    const allReviews = await ReviewModel.find()
+    const allReviews = await ReviewModel.find({})
     console.log("aaaaaaaaaaaaaaaaa", allReviews)
     return res.status(200).json(allReviews);
   } catch (err) {
